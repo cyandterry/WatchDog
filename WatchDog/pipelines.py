@@ -6,6 +6,18 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-class SupremePipeline(object):
+class CSVPipeline(object):
+
+    def __init__(self):
+        self.file = open('product.csv', 'wb')
+        self.exporter = CsvItemExporter(self.file, unicode)
+        self.exporter.start_exporting()
+
+    def close_spider(self, spider):
+        self.exporter.finish_exporting()
+        self.file.close()
+
     def process_item(self, item, spider):
+        import ipdb; ipdb.set_trace()
+        self.exporter.export_item(item)
         return item

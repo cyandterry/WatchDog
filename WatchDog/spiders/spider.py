@@ -18,21 +18,31 @@ class SupremeSpider(scrapy.Spider):
         all_list = []
 
         for a in articles:
-            link = str(a.css('a').xpath('@href').extract_first())
-            product_type = str(link.split('/')[2])
+            url = str(a.css('a').xpath('@href').extract_first())
+            link = self.BASE_URL + url
+
+            url_el = url.split('/')
+            product_type = url_el[2]
+            product = url_el[-2]
+            alt = url_el[-1]
+
             img_url = str(a.css('img')[0].xpath('@src').extract_first())
             is_available = not ('sold_out_tag' in a.extract())
             p = Product(
-                link=self.BASE_URL + link,
+                product=product,
+                alt=alt,
+                link=link,
                 product_type=product_type,
                 img_url='http:' + img_url,
                 is_available=is_available,
             )
-            if is_available:
-                available_list.append(p)
-            all_list.append(p)
+            yield p
+            return
+            # if is_available:
+            #     available_list.append(p)
+            # all_list.append(p)
 
-        self.check_products(available_list)
+        # self.check_products(available_list)
 
     def check_products(self, p_list):
         rows = ''
