@@ -15,8 +15,9 @@ SPIDER_MODULES = ['WatchDog.spiders']
 NEWSPIDER_MODULE = 'WatchDog.spiders'
 
 ITEM_PIPELINES = {
+   'WatchDog.pipelines.CompareProductPipeline': 300,
    'WatchDog.pipelines.NewProductPipeline': 300,
-   'WatchDog.pipelines.DisplayPipeline': 300,
+   # 'WatchDog.pipelines.DisplayPipeline': 300,
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent

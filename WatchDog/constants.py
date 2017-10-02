@@ -21,3 +21,8 @@ TOP_PRIORITY_PRODUCTS = [
     ProductType.T_SHIRT,
     ProductType.TOP_SWEATERS,
 ]
+
+
+class InventoryActivityType:
+    NEW_ITEM = 1
+    AVAILABILITY_CHANGE = 2
