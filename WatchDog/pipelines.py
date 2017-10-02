@@ -61,7 +61,7 @@ class CompareProductPipeline(object):
         for activity in self.new_activities:
             if (
                 activity.activity_type == InventoryActivityType.AVAILABILITY_CHANGE and
-                activity.item['is_available'] == str(False)
+                not activity.item['is_available']
             ):
                 continue
 
