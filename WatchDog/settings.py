@@ -14,6 +14,10 @@ BOT_NAME = 'WatchDog'
 SPIDER_MODULES = ['WatchDog.spiders']
 NEWSPIDER_MODULE = 'WatchDog.spiders'
 
+ITEM_PIPELINES = {
+   'WatchDog.pipelines.CSVPipeline': 300,
+   'WatchDog.pipelines.HMTLPipeline': 300,
+}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'WatchDog (+http://www.yourdomain.com)'
@@ -64,9 +68,7 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'WatchDog.pipelines.WatchdogPipeline': 300,
-#}
+
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

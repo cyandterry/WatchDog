@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
+import os
+import webbrowser
 
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+from scrapy.exporters import CsvItemExporter
 
 
 class CSVPipeline(object):
@@ -13,11 +11,53 @@ class CSVPipeline(object):
         self.exporter = CsvItemExporter(self.file, unicode)
         self.exporter.start_exporting()
 
+    def process_item(self, item, spider):
+        self.exporter.export_item(item)
+        return item
+
     def close_spider(self, spider):
         self.exporter.finish_exporting()
         self.file.close()
 
+
+class HMTLPipeline(object):
+
+    def __init__(self):
+        self.file = open('product.html', 'w')
+        self.rows = ''
+
     def process_item(self, item, spider):
-        import ipdb; ipdb.set_trace()
-        self.exporter.export_item(item)
+        if not item['is_available']:
+            return item
+
+        img = '<img src="%s">' % item['img_url']
+        link = '<a href="%s" target="_blank">Click to Buy</a>' % item['link']
+        self.rows += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % (
+            img,
+            item['product_type'],
+            link,
+        )
         return item
+
+    def close_spider(self, spider):
+        message = """
+<html>
+<head></head>
+<body>
+  %s
+</body>
+</html>
+"""
+        table = """
+<table>
+    <tr>
+       <th>Img</th>
+       <th>Type</th>
+       <th>URL</th>
+    </tr>
+    %s
+</table>
+""" % self.rows
+        self.file.write(message % table)
+        self.file.close()
+        webbrowser.open('file://' +  os.getcwd() + '/product.html')
