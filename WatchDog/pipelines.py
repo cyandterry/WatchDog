@@ -54,9 +54,6 @@ class CompareProductPipeline(object):
         self.send_email()
 
     def send_email(self):
-        if not self.new_activities:
-            return
-
         rows = ''
         for activity in self.new_activities:
             if (
@@ -73,6 +70,10 @@ class CompareProductPipeline(object):
                 activity.activity_type,
                 link,
             )
+
+        if not rows:
+            return
+
         message = """
 <html>
 <head></head>
@@ -95,14 +96,15 @@ class CompareProductPipeline(object):
 
         username = EMAIL_CONFIG['username']
         password = EMAIL_CONFIG['password']
+        recipients = EMAIL_CONFIG['recipient']
         msg = MIMEText(message % table, 'html')
-        msg['To'] = email.utils.formataddr(('Recipient', username))
+        msg['To'] = ', '.join(recipients)
         msg['From'] = email.utils.formataddr(('Yan Cao', username))
         msg['Subject'] = 'From Supreme: Go and Purchase!'
         server = smtplib.SMTP('smtp.gmail.com:587')
         server.starttls()
         server.login(username, password)
-        server.sendmail(username, username, msg.as_string())
+        server.sendmail(username, recipients, msg.as_string())
         server.quit()
 
 

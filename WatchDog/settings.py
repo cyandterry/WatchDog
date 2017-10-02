@@ -23,6 +23,10 @@ ITEM_PIPELINES = {
 EMAIL_CONFIG = dict(
     username = 'cyandterry@gmail.com',
     password = '123456',
+    recipient = [
+      'cyandterry@gmail.com',
+      'mpeng1013@gmail.com',
+   ]
 )
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
