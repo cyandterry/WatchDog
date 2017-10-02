@@ -4,7 +4,7 @@ import webbrowser
 from scrapy.exporters import CsvItemExporter
 
 
-class CSVPipeline(object):
+class NewProductPipeline(object):
 
     def __init__(self):
         self.file = open('product.csv', 'wb')
@@ -20,7 +20,7 @@ class CSVPipeline(object):
         self.file.close()
 
 
-class HMTLPipeline(object):
+class DisplayPipeline(object):
 
     def __init__(self):
         self.file = open('product.html', 'w')
