@@ -1,11 +1,15 @@
 import csv
+import email.utils
 import os
+import smtplib
 import webbrowser
+from email.mime.text import MIMEText
 
 from scrapy.exporters import CsvItemExporter
 
 from WatchDog.constants import InventoryActivityType
 from WatchDog.items import InventoryActivity
+from WatchDog.settings import EMAIL_CONFIG
 
 
 class CompareProductPipeline(object):
@@ -20,6 +24,7 @@ class CompareProductPipeline(object):
 
         self.file = open('inventory_actvity.csv', 'a')
         self.writer =  csv.writer(self.file)
+        self.new_activities = []
 
 
     def process_item(self, item, spider):
@@ -30,6 +35,7 @@ class CompareProductPipeline(object):
                 activity_type=InventoryActivityType.NEW_ITEM,
             )
             self.writer.writerow(new_activity.to_csv_row())
+            self.new_activities.append(new_activity)
         else:
             inventory_item = self.inventory[inventory_key]
             if str(item['is_available']) != inventory_item['is_available']:
@@ -39,11 +45,65 @@ class CompareProductPipeline(object):
                     old_item=inventory_item,
                 )
                 self.writer.writerow(new_activity.to_csv_row())
+                self.new_activities.append(new_activity)
 
         return item
 
     def close_spider(self, spider):
         self.file.close()
+        self.send_email()
+
+    def send_email(self):
+        if not self.new_activities:
+            return
+
+        rows = ''
+        for activity in self.new_activities:
+            if (
+                activity.activity_type == InventoryActivityType.AVAILABILITY_CHANGE and
+                activity.item['is_available'] == str(False)
+            ):
+                continue
+
+            img = '<img src="%s">' % activity.item['img_url']
+            link = '<a href="%s" target="_blank">Click to Buy</a>' % activity.item['link']
+            rows += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (
+                img,
+                activity.item['product_type'],
+                activity.activity_type,
+                link,
+            )
+        message = """
+<html>
+<head></head>
+<body>
+  %s
+</body>
+</html>
+"""
+        table = """
+<table>
+    <tr>
+       <th>Img</th>
+       <th>P Type</th>
+       <th>A Type</th>
+       <th>URL</th>
+    </tr>
+    %s
+</table>
+""" % rows
+
+        username = EMAIL_CONFIG['username']
+        password = EMAIL_CONFIG['password']
+        msg = MIMEText(message % table, 'html')
+        msg['To'] = email.utils.formataddr(('Recipient', username))
+        msg['From'] = email.utils.formataddr(('Yan Cao', username))
+        msg['Subject'] = 'From Supreme: Go and Purchase!'
+        server = smtplib.SMTP('smtp.gmail.com:587')
+        server.starttls()
+        server.login(username, password)
+        server.sendmail(username, username, msg.as_string())
+        server.quit()
 
 
 class NewProductPipeline(object):

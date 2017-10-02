@@ -20,6 +20,11 @@ ITEM_PIPELINES = {
    # 'WatchDog.pipelines.DisplayPipeline': 300,
 }
 
+EMAIL_CONFIG = dict(
+    username = 'cyandterry@gmail.com',
+    password = '123456',
+)
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'WatchDog (+http://www.yourdomain.com)'
 
